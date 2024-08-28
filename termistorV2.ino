@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-// Definir los pines donde se conectarán los sensores analógicos
+// Pines donde se conectarán los sensores analógicos
 const int termistor1 = A0;
 //const int termistor1 = 32; 
 //const int termistor2 = 35;
@@ -33,7 +33,7 @@ void loop() {
     //float temperature2 = temperature(analogValue2);
     //float temperature3 = temperature(analogValue3);
 
-    // Imprimir los valores de voltaje en el monitor serie
+    // Imprimir los valores de temperatura
     Serial.print("Temperatura en termistor 1 -> ");
     Serial.print(temperatura1);
     Serial.println("°C");
