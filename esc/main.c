@@ -15,43 +15,33 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <math.h>
 #include <stdio.h>
 /* USER CODE END Includes */
-
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 /* USER CODE END PTD */
-
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 /* USER CODE END PD */
-
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 /* USER CODE END PM */
-
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc2;
-
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
-
-UART_HandleTypeDef huart1;
-
 /* USER CODE BEGIN PV */
-uint32_t ThrottleSignal,VoltageSignal,CurrentSignal,voltage,current,watts,VOCurrent,VOVoltage,HIGH_SIGNAL,signal;
+uint32_t ThrottleSignal,InvThrottleSignal,VoltageSignal,CurrentSignal,voltage,current,watts,VOCurrent,VOVoltage,HIGH_SIGNAL,signal;
 volatile int HALLA_State,HALLB_State,HALLC_State,DMS_State,ed;
 volatile int fase = 0,nuevaFase = 0;
 // TIM2 CH1 INA CH2 SDA
 // TIM3 CH1 INB CH2 SDB
 // TIM4 CH1 INC CH4 SDC
 /* USER CODE END PV */
-
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
@@ -59,7 +49,6 @@ static void MX_ADC2_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
-static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 static void SetMotorPhase(int NuevaFase);
 
@@ -76,14 +65,14 @@ void switchfase(){
 		nuevaFase = 3;} /*A-C*/
 	else if (HALLA_State == 0 && HALLB_State == 0 && HALLC_State == 1) {
 		nuevaFase = 1;} /*C-B*/
-//	if (DMS_State == 1){
-//		HIGH_SIGNAL = 320;
-//		while (HIGH_SIGNAL > 280){
-//			HIGH_SIGNAL--;
-//		}
-//	}
-//	if (DMS_State == 0){
-//		HIGH_SIGNAL = 0; /* nuevaFase = 0; */}
+	if (DMS_State == 1){
+		HIGH_SIGNAL = 280;
+		while (HIGH_SIGNAL > 240){
+			HIGH_SIGNAL--;
+		}
+	}
+	if (DMS_State == 0){
+		HIGH_SIGNAL = 0; /* nuevaFase = 0; */}
 	SetMotorPhase(nuevaFase);
 }
 
@@ -105,7 +94,7 @@ void SetMotorPhase(){
 
 			/* SDA OFF */ TIM2 -> CCR4 = 0;
 			/* SDB OFF */ TIM3 -> CCR2 = 0;
-			/* SDC OFF */ TIM4 -> CCR2 = 0;
+			/* SDC OFF */ TIM4 -> CCR4 = 0;
 			/* INA OFF */ TIM2 -> CCR1 = 0;
 			/* INB OFF */ TIM3 -> CCR1 = 0;
 			/* INC OFF */ TIM4 -> CCR1 = 0;
@@ -114,7 +103,7 @@ void SetMotorPhase(){
 		case 1:
 			/* SDA OFF */	TIM2 -> CCR4 = 0;
 			/* SDB ON */	TIM3 -> CCR2 = HIGH_SIGNAL;
-			/* SDC ON */	TIM4 -> CCR2 = HIGH_SIGNAL;
+			/* SDC ON */	TIM4 -> CCR4 = HIGH_SIGNAL;
 
 			TIM4->CCMR1 &= ~(TIM_CCMR1_OC1M); // Limpiar los bits OC1M para asegurar el modo de salida PWM1
 			TIM4->CCMR1 |= TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1; // Establecer bits OC1M en 1 y 0 para PWM1
@@ -138,7 +127,7 @@ void SetMotorPhase(){
 
 			/* SDA ON */	TIM2 -> CCR4 = HIGH_SIGNAL;
 			/* SDB ON */	TIM3 -> CCR2 = HIGH_SIGNAL;
-			/* SDC OFF */	TIM4 -> CCR2 = 0;
+			/* SDC OFF */	TIM4 -> CCR4 = 0;
 
 			TIM4->CCMR1 &= ~(TIM_CCMR1_OC1M); // Limpiar los bits OC1M para asegurar el modo de salida PWM1
 			TIM4->CCMR1 |= TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1; // Establecer bits OC1M en 1 y 0 para PWM1
@@ -161,7 +150,8 @@ void SetMotorPhase(){
 		case 3:
 			/* SDA ON */	TIM2 -> CCR4 = HIGH_SIGNAL;
 			/* SDB OFF */	TIM3 -> CCR2 = 0;
-			/* SDC ON */	TIM4 -> CCR2 = HIGH_SIGNAL;
+			/* SDC ON */	TIM4 -> CCR4 = HIGH_SIGNAL;
+
 
 			TIM2->CCMR1 &= ~(TIM_CCMR1_OC1M); // Limpiar los bits OC1M para asegurar el modo de salida PWM1
 			TIM2->CCMR1 |= TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1; // Establecer bits OC1M en 1 y 0 para PWM1
@@ -185,7 +175,7 @@ void SetMotorPhase(){
 		case 4:
 			/* SDA OFF */	TIM2 -> CCR4 = 0;
 			/* SDB ON */	TIM3 -> CCR2 = HIGH_SIGNAL;
-			/* SDC ON */	TIM4 -> CCR2 = HIGH_SIGNAL;
+			/* SDC ON */	TIM4 -> CCR4 = HIGH_SIGNAL;
 
 			TIM2->CCMR1 &= ~(TIM_CCMR1_OC1M); // Limpiar los bits OC1M para asegurar el modo de salida PWM1
 			TIM2->CCMR1 |= TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1; // Establecer bits OC1M en 1 y 0 para PWM1
@@ -209,7 +199,7 @@ void SetMotorPhase(){
 
 			/* SDA ON */	TIM2 -> CCR4 = HIGH_SIGNAL;
 			/* SDB ON */	TIM3 -> CCR2 = HIGH_SIGNAL;
-			/* SDC OFF */	TIM4 -> CCR2 = 0;
+			/* SDC OFF */	TIM4 -> CCR4 = 0;
 
 			TIM3->CCMR1 &= ~(TIM_CCMR1_OC1M);
 			TIM3->CCMR1 |= TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1;
@@ -233,7 +223,7 @@ void SetMotorPhase(){
 
 			/* SDA ON */ 	TIM2 -> CCR4 = HIGH_SIGNAL;
 			/* SDB OFF */ 	TIM3 -> CCR2 = 0;
-			/* SDC ON */ 	TIM4 -> CCR2 = HIGH_SIGNAL;
+			/* SDC ON */ 	TIM4 -> CCR4 = HIGH_SIGNAL;
 
 			TIM3->CCMR1 &= ~(TIM_CCMR1_OC1M);
 			TIM3->CCMR1 |= TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1;
@@ -262,45 +252,32 @@ void StartMotor(uint32_t HIGH_SIGNAL){
 	}
 
 void stopMotor(){
-//	for (HIGH_SIGNAL; HIGH_SIGNAL > 30; HIGH_SIGNAL -=20) { HAL_Delay(50); }
+	for (HIGH_SIGNAL; HIGH_SIGNAL > 30; HIGH_SIGNAL -=20) { HAL_Delay(50); }
 }
 
 /* USER CODE END PFP */
-
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 /* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
-int main(void)
-{
+/** * @brief  The application entry point. * @retval int*/
+int main(void){
   /* USER CODE BEGIN 1 */
   /* USER CODE END 1 */
-
   /* MCU Configuration--------------------------------------------------------*/
-
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
   /* USER CODE BEGIN Init */
   /* USER CODE END Init */
-
   /* Configure the system clock */
   SystemClock_Config();
-
   /* USER CODE BEGIN SysInit */
   /* USER CODE END SysInit */
-
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_ADC2_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
-  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   /*Iniciar PWMs de los 3 Timers en sus canales*/
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1); /*INA*/
@@ -309,12 +286,12 @@ int main(void)
 
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4); /*SDA*/
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2); /*SDB*/
-  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2); /*SDC*/
+  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4); /*SDC*/
 
   /*Inicializar todos con un %DC de 0% -> Todo apagado*/
   TIM2 -> CCR4 = 0;
   TIM3 -> CCR2 = 0;
-  TIM4 -> CCR2 = 0;
+  TIM4 -> CCR4 = 0;
   TIM2 -> CCR1 = 0;
   TIM3 -> CCR1 = 0;
   TIM4 -> CCR1 = 0;
@@ -327,56 +304,18 @@ int main(void)
   switchfase();
 
   /* USER CODE END 2 */
-
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 while (1){
 	DMS_State = HAL_GPIO_ReadPin(GPIOA, DMS_Pin);
-
-//	sConfigPrivate.Rank = ADC_REGULAR_RANK_1;
-//	sConfigPrivate.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
-//
-//	/*Leer el Canal 9 del ADC2 SEÑAL DE CORRIENTE*/
-//	sConfigPrivate.Channel = ADC_CHANNEL_9;
-//	HAL_ADC_ConfigChannel(&hadc2, &sConfigPrivate);
-//	HAL_ADC_Start(&hadc2);
-//	HAL_ADC_PollForConversion(&hadc2,1000);
-//	CurrentSignal = HAL_ADC_GetValue(&hadc2);
-//	HAL_ADC_Stop(&hadc2);
-//
-//	/*Leer el Canal 8 del ADC2 SEÑAL DE VOLTAJE*/
-//	sConfigPrivate.Channel = ADC_CHANNEL_8;
-//	HAL_ADC_ConfigChannel(&hadc2, &sConfigPrivate);
-//	HAL_ADC_Start(&hadc2);
-//	HAL_ADC_PollForConversion(&hadc2,1000);
-//	VoltageSignal = HAL_ADC_GetValue(&hadc2);
-//	HAL_ADC_Stop(&hadc2);
-//
-//	/*Leer el Canal 7 del ADC2 SEÑAL DE THROTTLE*/
-//	sConfigPrivate.Channel = ADC_CHANNEL_7;
-//	HAL_ADC_ConfigChannel(&hadc2, &sConfigPrivate);
-//	HAL_ADC_Start(&hadc2);
-//	HAL_ADC_PollForConversion(&hadc2,1000);
-//	ThrottleSignal = HAL_ADC_GetValue(&hadc2);
-//	HAL_ADC_Stop(&hadc2);
-
-//	/* Conversión de lectura a Voltaje de salida de sensor de corriente en un rango de 3.3V */ VOCurrent = (CurrentSignal * 3.3) / 4095.0;
-//	/* Conversión de voltaje de salida a corriente en Amperios */ current = (VOCurrent-1.75)/0.04;
-//	/* Conversión de lectura a Voltaje del divisor de voltaje en un rango de 3.3V*/ VOVoltage = (5.127 * VoltageSignal)/4095.0;
-//	/* Conversión de Vo del divisor de voltaje a Vin según fórmula de divisor de voltaje*/ voltage = VOVoltage/(10.0/11.0);
-//	/* Sacar consumo en Watts */ watts  = current*voltage;
-
 	/*Duty Cyle recomendado en start: 50%-70%, en drive 30%-60% -- Según flux.ai*/
 	/* Cambiar la fase solo si hay un cambio en la fase */
-//	HALLA_State = HAL_GPIO_ReadPin(GPIOA, HALL_A_Pin);
-//	HALLB_State = HAL_GPIO_ReadPin(GPIOA, HALL_B_Pin);
-//	HALLC_State = HAL_GPIO_ReadPin(GPIOA, HALL_C_Pin);
+	HALLA_State = HAL_GPIO_ReadPin(GPIOA, HALL_A_Pin);
+	HALLB_State = HAL_GPIO_ReadPin(GPIOA, HALL_B_Pin);
+	HALLC_State = HAL_GPIO_ReadPin(GPIOA, HALL_C_Pin);
 	switchfase();
-//	nuevaFase = 4;
-	HIGH_SIGNAL = 250;
 	SetMotorPhase(nuevaFase);
     /* USER CODE END WHILE */
-
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -619,46 +558,13 @@ static void MX_TIM4_Init(void)
   {
     Error_Handler();
   }
-  if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
   {
     Error_Handler();
   }
   /* USER CODE BEGIN TIM4_Init 2 */
   /* USER CODE END TIM4_Init 2 */
   HAL_TIM_MspPostInit(&htim4);
-
-}
-
-/**
-  * @brief USART1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART1_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART1_Init 0 */
-
-  /* USER CODE END USART1_Init 0 */
-
-  /* USER CODE BEGIN USART1_Init 1 */
-
-  /* USER CODE END USART1_Init 1 */
-  huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
-  huart1.Init.WordLength = UART_WORDLENGTH_8B;
-  huart1.Init.StopBits = UART_STOPBITS_1;
-  huart1.Init.Parity = UART_PARITY_NONE;
-  huart1.Init.Mode = UART_MODE_TX_RX;
-  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART1_Init 2 */
-
-  /* USER CODE END USART1_Init 2 */
 
 }
 
@@ -681,7 +587,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pins : HALL_A_Pin HALL_B_Pin HALL_C_Pin */
   GPIO_InitStruct.Pin = HALL_A_Pin|HALL_B_Pin|HALL_C_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : DMS_Pin */
@@ -710,7 +616,7 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-	if (GPIO_Pin == HALL_A_Pin || GPIO_Pin == HALL_B_Pin || GPIO_Pin == HALL_C_Pin){
+	if (GPIO_Pin == HALL_A_Pin || GPIO_Pin == HALL_B_Pin || GPIO_Pin == HALL_C_Pin  /*|| GPIO_Pin == DMS_Pin */){
 	HALLA_State = HAL_GPIO_ReadPin(GPIOA, HALL_A_Pin);
 	HALLB_State = HAL_GPIO_ReadPin(GPIOA, HALL_B_Pin);
 	HALLC_State = HAL_GPIO_ReadPin(GPIOA, HALL_C_Pin);
