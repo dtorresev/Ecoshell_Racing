@@ -3,6 +3,8 @@
   ******************************************************************************
   * @file           : main.c
   * @brief          : Main program body
+  * Author          : David Torres
+  * Latest update   : September 2024
   ******************************************************************************
   * @attentionth
   * Copyright (c) 2024 STMicroelectronics.
