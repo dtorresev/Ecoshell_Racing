@@ -3,6 +3,8 @@
   ******************************************************************************
   * @file           : main.c
   * @brief          : Main program body
+  * Author          : David Torres
+  * Fecha           : Npi?? Se ve reciente pero npi
   ******************************************************************************
   * @attentionth
   * Copyright (c) 2024 STMicroelectronics.

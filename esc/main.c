@@ -3,6 +3,8 @@
   ******************************************************************************
   * @file           : main.c
   * @brief          : Main program body
+  * Author          : David Torres 
+  * Con esta madre nos fuimos a Indianápolis en 2024 jajajaj lololol
   ******************************************************************************
   * @attention
   * Copyright (c) 2024 STMicroelectronics.
