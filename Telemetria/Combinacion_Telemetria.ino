@@ -51,7 +51,7 @@ void Visualizacion_Serial(void)
 
 //Funciones para sensor de Temperatura
 
-float temperature(int analogValue, int maxAnalog = 1023, int r0 = 10000, float A = 0.001126225487912, float B = 0.000234625984645, float C = 0.000000085504096){
+float temperature(int analogValue, int maxAnalog = 4095, int r0 = 10000, float A = 0.001126225487912, float B = 0.000234625984645, float C = 0.000000085504096){
   float resistance = r0 * ((float(maxAnalog)/ analogValue) - 1);
   float temperatura = A + B * log(resistance) + C * pow(log(resistance),3);
   return (1.0/temperatura) - 273.15;
