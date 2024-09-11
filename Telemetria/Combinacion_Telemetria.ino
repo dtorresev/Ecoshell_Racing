@@ -13,6 +13,21 @@ TinyGPSPlus gps;
 //Definión de pines para Termistor
 #define termistor1 35
 
+//Definición de pines y variables de Sensor Hall
+
+#define sensorPin = 34;
+const float diametroLlanta = 0.6604;  // 26"
+volatile unsigned long tiempoAnterior = 0, tiempoActual = 0, deltaTime = 0;
+const unsigned long tiempoDebounce = 80;
+float rpm = 0, kmh = 0;
+
+// Tiempo límite para recibir la señal del sensor (2 segundos)
+const unsigned long tiempoLimite = 2000;
+volatile unsigned long tiempoUltimaSenal = 0;
+
+// Variables para almacenar los valores anteriores
+float rpmAnterior = -1, kmhAnterior = -1;
+
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 void setup() 
@@ -24,6 +39,10 @@ void setup()
 
   //Definición de inicio de Termistor
   pinMode(termistor1, INPUT);
+
+  //Definición de inicio del Sensor Hall
+  pinMode(sensorPin, INPUT);
+  attachInterrupt(digitalPinToInterrupt(sensorPin), detectarSensor, FALLING);
   
   delay(2000);
 }
@@ -32,6 +51,28 @@ void setup()
 
 void loop() 
 {
+
+//-------------- Codigo Hall Sensor --------------
+
+if ((millis() - tiempoUltimaSenal) > tiempoLimite) {
+    rpm = 0;
+}
+
+kmh = (rpm * diametroLlanta * PI * 60) / 1000;
+
+if (rpm != rpmAnterior) {
+    rpmAnterior = rpm;
+    Serial.println(rpm)
+}
+
+if (kmh != kmhAnterior) {
+    kmhAnterior = kmh;
+    Serial.println(kmh)
+  }
+
+
+
+
 
 //-------------- Codigo Termistor --------------
 
@@ -129,3 +170,17 @@ float temperature(int analogValue, int maxAnalog = 1023, int r0 = 10000, float A
   float temperatura = A + B * log(resistance) + C * pow(log(resistance),3);
   return (1.0/temperatura) - 273.15;
 }
+
+//Funciones para el Sensor HALL
+
+void IRAM_ATTR detectarSensor() {
+  unsigned long tiempoActualISR = millis();
+  if ((tiempoActualISR - tiempoAnterior) > tiempoDebounce) {
+    deltaTime = tiempoActualISR - tiempoAnterior;
+    tiempoAnterior = tiempoActualISR;
+    rpm = 60000.0 / deltaTime;
+    // Actualizar el tiempo de la última señal recibida
+    tiempoUltimaSenal = tiempoActualISR;
+  }
+}
+
