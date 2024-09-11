@@ -9,6 +9,7 @@ char   datoCmd = 0;
 #define NMEA 0
 TinyGPSPlus gps;
 // chuy se la come
+// @dtorresev se la traga
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 void setup() 
