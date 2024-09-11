@@ -10,8 +10,6 @@ Documentación detallada y guías de uso para cada componente del sistema 📚.
 Herramientas y scripts auxiliares para la recopilación y análisis de datos 🛠️.
 Nos apasiona la ingeniería y la innovación, y este repositorio refleja nuestro compromiso con la excelencia técnica y la sostenibilidad en el transporte 🌍. ¡Esperamos que encuentres útil nuestro trabajo y agradecemos cualquier contribución o sugerencia! 🚀
 
-
-
-
+![PCBV2_1](https://github.com/user-attachments/assets/a490407c-d00d-4977-a4c9-3280e470c2ab)
 
 
