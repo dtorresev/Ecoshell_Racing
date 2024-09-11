@@ -8,6 +8,8 @@ String URL = "http://172.20.10.3/ecoshellDB/ecoShell.php";
 const char* ssid = "Juanjo"; // nombre de la red
 const char* password = "ecoshell"; // contraseña de la red
 
+// NOTA IMPORTANTE: LOS VALORES QUE CALCULAN O RECOLECTAN TIENEN QUE TERMINAR EN LAS VARIABLES STRING ***ESP PORQUE ESAS SON LAS QUE SE MANDAN AL DATABASE
+
 // Variables a mandar al codigo php
 String rpmESP = "";
 String tempESP = "";
@@ -17,7 +19,7 @@ String throtESP = "";
 String latESP = "";
 String lonESP = "";
 
-// Variables a mandar al codigo php
+// Variables para utilizar en este codigo
 float rpmNum = 0;
 float tempNum = 0;
 float voltNum = 0;
@@ -88,7 +90,7 @@ void connectWifi() {
   }
 }
 
-// Esta es la función "Padre" de la recolección de datos, si añaden una función para la obtención de su dato que se junte en esta y quitar el generador random
+// Esta es la función "Padre" de la recoleccion de datos, si añaden una funcion para la obtencion de su dato que se junte en esta y quitar el generador random
 void obtenerDatos() {
   rpmNum = random(0, 201);
   rpmESP = String(rpmNum);
