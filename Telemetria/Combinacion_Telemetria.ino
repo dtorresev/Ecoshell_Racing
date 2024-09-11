@@ -15,7 +15,7 @@ TinyGPSPlus gps;
 
 //Definición de pines y variables de Sensor Hall
 
-#define sensorPin = 34;
+#define sensorPin 34;
 const float diametroLlanta = 0.6604;  // 26"
 volatile unsigned long tiempoAnterior = 0, tiempoActual = 0, deltaTime = 0;
 const unsigned long tiempoDebounce = 80;
@@ -27,6 +27,48 @@ volatile unsigned long tiempoUltimaSenal = 0;
 
 // Variables para almacenar los valores anteriores
 float rpmAnterior = -1, kmhAnterior = -1;
+
+//------------------------------------------------------------------------------------------------------------------------------------------
+
+//Funciones para sensor GPS
+
+void Visualizacion_Serial(void)
+{ 
+   
+  if (gps.location.isValid() ==  1)
+  {  
+    //Serial.print("Lat: ");
+    Serial.println(gps.location.lat(),10);
+    //Serial.print("Lng: ");
+    Serial.println(gps.location.lng(),10);  
+  }
+  else
+  {
+    Serial.println("Sin señal gps");  
+  }  
+
+}
+
+//Funciones para sensor de Temperatura
+
+float temperature(int analogValue, int maxAnalog = 1023, int r0 = 10000, float A = 0.001126225487912, float B = 0.000234625984645, float C = 0.000000085504096){
+  float resistance = r0 * ((float(maxAnalog)/ analogValue) - 1);
+  float temperatura = A + B * log(resistance) + C * pow(log(resistance),3);
+  return (1.0/temperatura) - 273.15;
+}
+
+//Funciones para el Sensor HALL
+
+void IRAM_ATTR detectarSensor() {
+  unsigned long tiempoActualISR = millis();
+  if ((tiempoActualISR - tiempoAnterior) > tiempoDebounce) {
+    deltaTime = tiempoActualISR - tiempoAnterior;
+    tiempoAnterior = tiempoActualISR;
+    rpm = 60000.0 / deltaTime;
+    // Actualizar el tiempo de la última señal recibida
+    tiempoUltimaSenal = tiempoActualISR;
+  }
+}
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -62,16 +104,13 @@ kmh = (rpm * diametroLlanta * PI * 60) / 1000;
 
 if (rpm != rpmAnterior) {
     rpmAnterior = rpm;
-    Serial.println(rpm)
+    Serial.println(rpm);
 }
 
 if (kmh != kmhAnterior) {
     kmhAnterior = kmh;
-    Serial.println(kmh)
-  }
-
-
-
+    Serial.println(kmh);
+}
 
 
 //-------------- Codigo Termistor --------------
@@ -140,47 +179,3 @@ else
   
  }
 }
-
-
-//------------------------------------------------------------------------------------------------------------------------------------------
-
-//Funciones para sensor GPS
-
-void Visualizacion_Serial(void)
-{ 
-   
-  if (gps.location.isValid() ==  1)
-  {  
-    //Serial.print("Lat: ");
-    Serial.println(gps.location.lat(),10);
-    //Serial.print("Lng: ");
-    Serial.println(gps.location.lng(),10);  
-  }
-  else
-  {
-    Serial.println("Sin señal gps");  
-  }  
-
-}
-
-//Funciones para sensor de Temperatura
-
-float temperature(int analogValue, int maxAnalog = 1023, int r0 = 10000, float A = 0.001126225487912, float B = 0.000234625984645, float C = 0.000000085504096){
-  float resistance = r0 * ((float(maxAnalog)/ analogValue) - 1);
-  float temperatura = A + B * log(resistance) + C * pow(log(resistance),3);
-  return (1.0/temperatura) - 273.15;
-}
-
-//Funciones para el Sensor HALL
-
-void IRAM_ATTR detectarSensor() {
-  unsigned long tiempoActualISR = millis();
-  if ((tiempoActualISR - tiempoAnterior) > tiempoDebounce) {
-    deltaTime = tiempoActualISR - tiempoAnterior;
-    tiempoAnterior = tiempoActualISR;
-    rpm = 60000.0 / deltaTime;
-    // Actualizar el tiempo de la última señal recibida
-    tiempoUltimaSenal = tiempoActualISR;
-  }
-}
-
