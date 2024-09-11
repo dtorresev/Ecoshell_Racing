@@ -15,7 +15,7 @@ TinyGPSPlus gps;
 
 //Definición de pines y variables de Sensor Hall
 
-#define sensorPin 34;
+#define sensorPin 33
 const float diametroLlanta = 0.6604;  // 26"
 volatile unsigned long tiempoAnterior = 0, tiempoActual = 0, deltaTime = 0;
 const unsigned long tiempoDebounce = 80;
@@ -139,7 +139,7 @@ Serial.println("°C");
 //Serial.println("°C");
     
 // Esperar un poco antes de la siguiente lectura
-delay(1000);
+delay(500);
 
 //-------------- Codigo GPS --------------
 
