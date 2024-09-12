@@ -106,6 +106,7 @@ classdef InterfazEcoshell < matlab.apps.AppBase
 
             % Lectura del último valor en la base de datos
             lastRPM = data.rpm(end);
+            lastSpeed = data.speed(end);
             lastTemp = data.temp(end);
             lastVolt = data.volt(end);
             lastAmp = data.amp(end);
@@ -113,14 +114,10 @@ classdef InterfazEcoshell < matlab.apps.AppBase
             lastLat = data.lat(end);
             lastLon = data.lon(end);
         
-            % Calcular la velocidad del carro (No utilizado en versión final)
-            radius = 2.54 * 13 / 100;  
-            lastSpeed = round(0.12 * pi * radius * lastRPM);
-        
             % Comprobar si hay nuevos datos
             if ~isequal(lastRPM, app.LastRPM) || ~isequal(lastTemp, app.LastTemp) || ...
                ~isequal(lastVolt, app.LastVolt) || ~isequal(lastAmp, app.LastAmp) || ...
-               ~isequal(lastThrot, app.LastThrot)
+               ~isequal(lastThrot, app.LastThrot) || ~isequal(lastSpeed, app.LastSpeed)
         
                 % Actualizar valores
                 app.RPMEditField.Value = lastRPM;
