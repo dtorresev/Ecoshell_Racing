@@ -12,6 +12,7 @@ const char* password = "ecoshell"; // contraseña de la red
 
 // Variables a mandar al codigo php
 String rpmESP = "";
+String speedESP = "";
 String tempESP = "";
 String voltESP = "";
 String ampESP = "";
@@ -21,6 +22,7 @@ String lonESP = "";
 
 // Variables para utilizar en este codigo
 float rpmNum = 0;
+float speedNum = 0;
 float tempNum = 0;
 float voltNum = 0;
 float ampNum = 0;
@@ -44,7 +46,7 @@ void loop() {
   obtenerDatos();
 
   // Datos a enviar al codigo de php
-  String postData = "rpmESP=" + rpmESP + "&tempESP=" + tempESP + "&voltESP=" + voltESP + "&ampESP=" + ampESP + "&throtESP=" + throtESP + "&latESP=" + latESP + "&lonESP=" + lonESP;
+  String postData = "rpmESP=" + rpmESP + "speedESP=" + speedESP + "&tempESP=" + tempESP + "&voltESP=" + voltESP + "&ampESP=" + ampESP + "&throtESP=" + throtESP + "&latESP=" + latESP + "&lonESP=" + lonESP;
 
   // Inicializar la conexion con el codigo php
   if (WiFi.status() == WL_CONNECTED) {
@@ -94,6 +96,8 @@ void connectWifi() {
 void obtenerDatos() {
   rpmNum = random(0, 201);
   rpmESP = String(rpmNum);
+
+  
 
   tempNum = random(0, 101);
   tempESP = String(tempNum);
