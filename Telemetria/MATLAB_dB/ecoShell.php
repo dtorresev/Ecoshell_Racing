@@ -14,10 +14,11 @@
     }
 
     // Recolección y envío de los datos
-    if (isset($_POST["rpmESP"]) || isset($_POST["tempESP"]) || isset($_POST["voltESP"]) || isset($_POST["ampESP"]) || isset($_POST["throtESP"]) || isset($_POST["latESP"]) || isset($_POST["lonESP"])) { 
+    if (isset($_POST["rpmESP"]) || isset($_POST["speedESP"]) ||isset($_POST["tempESP"]) || isset($_POST["voltESP"]) || isset($_POST["ampESP"]) || isset($_POST["throtESP"]) || isset($_POST["latESP"]) || isset($_POST["lonESP"])) { 
 
         // Valores recibidos de la ESP
         $rpmPHP = $_POST["rpmESP"];
+        $speedPHP = $_POST["speedESP"];
         $tempPHP = $_POST["tempESP"];
         $voltPHP = $_POST["voltESP"];
         $ampPHP = $_POST["ampESP"];
@@ -26,7 +27,7 @@
         $lonPHP = $_POST["lonESP"];
 
         // Set de instrucción para actualizar los datos en la db
-        $instruccion = "INSERT INTO sensordatabase (rpm, temp, volt, amp, throt, lat, lon) VALUES ('$rpmPHP', '$tempPHP', '$voltPHP', '$ampPHP', '$throtPHP', '$latPHP', '$lonPHP')";
+        $instruccion = "INSERT INTO sensordatabase (rpm, speed, temp, volt, amp, throt, lat, lon) VALUES ('$rpmPHP', '$speedPHP', '$tempPHP', '$voltPHP', '$ampPHP', '$throtPHP', '$latPHP', '$lonPHP')";
 
         if (mysqli_query($conn, $instruccion)) { 
             // Enviar los datos
