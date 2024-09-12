@@ -97,7 +97,8 @@ void obtenerDatos() {
   rpmNum = random(0, 201);
   rpmESP = String(rpmNum);
 
-  
+  speedNum = (rpmNum * 0.6604 * PI * 60) / 1000;
+  speedESP = String(speedESP);
 
   tempNum = random(0, 101);
   tempESP = String(tempNum);
