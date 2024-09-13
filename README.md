@@ -13,3 +13,4 @@ Nos apasiona la ingeniería y la innovación, y este repositorio refleja nuestro
 ![PCBV2_1](https://github.com/user-attachments/assets/a490407c-d00d-4977-a4c9-3280e470c2ab)
 
 
+# Software
