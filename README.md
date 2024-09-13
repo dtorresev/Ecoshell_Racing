@@ -1,8 +1,8 @@
 # Ecoshell_Racing
 Electrónica Ecoshell
 
-Shell Eco-marathon - Equipo de Electrónica ⚡🚗
-Bienvenidos al repositorio del equipo de Electrónica que participa en la competencia Shell Eco-marathon. Este repositorio contiene los códigos y recursos desarrollados para el sistema de telemetría 📡 y el controlador electrónico de velocidad (ESC) implementado con una BluePill 🟦 (basada en el microcontrolador STM32). Nuestro objetivo es optimizar el rendimiento y la eficiencia energética de nuestro vehículo, utilizando tecnologías avanzadas y soluciones innovadoras. Aquí encontrarás:
+Hello! Welcome to EcoShell Racing's GitHub repository, we're an interdisciplinary team representing ITESM Monterrey Campus on the Shell Eco-marathon since 2024. Here we'll share all the information that has allowed us to excel at the development of an electronic speed controller for a standard e-bike motor, aka BLDC motor or PMSM. Members:
+
 
 Código fuente del sistema de telemetría para el monitoreo en tiempo real de los parámetros del vehículo 📊.
 Implementación del controlador electrónico de velocidad (ESC) utilizando la plataforma BluePill ⚙️.
