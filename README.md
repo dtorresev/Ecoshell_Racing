@@ -1,5 +1,5 @@
-# Ecoshell Racing
-Electrónica Ecoshell
+# Ecoshell Racing 
+Electrónica EcoShell
 
 Hello! Welcome to EcoShell Racing's GitHub repository, we're an interdisciplinary team representing ITESM Monterrey Campus on the Shell Eco-marathon since 2024. Here we'll share all the information that has allowed us to excel at the development of an electronic speed controller for a standard e-bike motor, aka BLDC motor or PMSM. Members:
 
@@ -15,3 +15,6 @@ Nos apasiona la ingeniería y la innovación, y este repositorio refleja nuestro
 
 # Software
 - PCB Design and Layout: [Altium Designer 24](url)
+
+# Contact
+The current design was made by for EcoShell Racing's debut at the Shell Eco-marathon.
