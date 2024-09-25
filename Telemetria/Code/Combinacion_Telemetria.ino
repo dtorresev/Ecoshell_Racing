@@ -11,7 +11,7 @@ char datoCmd = 0;
 TinyGPSPlus gps;
 
 //Definión de pines para Termistor
-#define termistor1 35
+#define termistor1 32
 
 //Definición de pines y variables de Sensor Hall
 
