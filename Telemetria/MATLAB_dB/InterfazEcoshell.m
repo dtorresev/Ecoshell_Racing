@@ -78,6 +78,7 @@ classdef InterfazEcoshell < matlab.apps.AppBase
         latMin = 37.7748;      % Latitud mínima del mapa del circuito
         latMax = 37.7752;      % Latitud máxima del mapa del circuito
         nombreExcelGen         % Nombre del Excel generado
+        isQueryRunning = false;  % Flag to prevent multiple queries at the same time
     end
     
     % Funciones utilizadas en la app
@@ -98,27 +99,32 @@ classdef InterfazEcoshell < matlab.apps.AppBase
 
             % Mandar los datos generados a la base de datos (No utilizado en verisón final)
             %sqlwrite(app.DBConnection, "sensordb", dataWrite); %(Descomentar para probar Interfaz)
-            
-            % Lectura de valores de la base de datos
-            query = 'SELECT * FROM ecoshell.sensordatabase';
-            data = fetch(app.DBConnection, query);
-            lastRow = data(end,:);
 
-            % Lectura del último valor en la base de datos
-            lastRPM = data.rpm(end);
-            lastSpeed = data.speed(end);
-            lastTemp = data.temp(end);
-            lastVolt = data.volt(end);
-            lastAmp = data.amp(end);
-            lastThrot = data.throt(end);
-            lastLat = data.lat(end);
-            lastLon = data.lon(end);
-        
-            % Comprobar si hay nuevos datos
-            if ~isequal(lastRPM, app.LastRPM) || ~isequal(lastTemp, app.LastTemp) || ...
-               ~isequal(lastVolt, app.LastVolt) || ~isequal(lastAmp, app.LastAmp) || ...
-               ~isequal(lastThrot, app.LastThrot) || ~isequal(lastSpeed, app.LastSpeed)
-        
+            if app.isQueryRunning
+                disp("Query already in progress, skipping this update cycle.");
+                return;
+            end
+            
+            app.isQueryRunning = true;
+            
+            try
+            
+                % Lectura de valores de la base de datos
+                query = 'SELECT * FROM ecoshell.sensores';
+                data = fetch(app.DBConnection, query);
+                % lastRow = data(end,:);
+    
+                % Lectura del último valor en la base de datos
+                lastRPM = data.rpm(end);
+                lastTemp = data.temp(end);
+                lastVolt = data.volt(end);
+                lastAmp = data.amp(end);
+                lastThrot = data.throt(end);
+                lastLat = data.lat(end);
+                lastLon = data.lon(end);  
+                lastSpeed = data.speed(end);
+            
+            
                 % Actualizar valores
                 app.RPMEditField.Value = lastRPM;
                 app.TempEditField.Value = lastTemp;
@@ -126,11 +132,11 @@ classdef InterfazEcoshell < matlab.apps.AppBase
                 app.AmpEditField.Value = lastAmp;
                 app.ThorttleEditField.Value = lastThrot;
                 app.KmhEditField.Value = lastSpeed;
-
+    
                 % Conversión de coordenadas en pixeles de la imagen
                 [x, y] = transformCoords(app, lastLat, lastLon, size(app.CircuitoBrasil), app.PistaUIAxes, app.lonMin, app.lonMax, app.latMin, app.latMax);
-            
-                % Actualizar la posición del carro en el circuito
+
+                %Actualizar la posición del carro en el circuito
                 if isempty(app.PosicionPlot) || ~isvalid(app.PosicionPlot)
                     app.PosicionPlot = plot(app.PistaUIAxes, x, y, 'r.', 'MarkerSize', 40);
                 else
@@ -165,11 +171,14 @@ classdef InterfazEcoshell < matlab.apps.AppBase
                 app.LastSpeed = lastSpeed;
                 app.LastLat = lastLat;
                 app.LastLon = lastLon;
-
+    
                 % Actualizar el Excel
                 % writetable(lastRow,app.nombreExcelGen,'WriteMode','append');
-            
+            catch err
+                disp("Error fetching data: " + err.message);
             end
+            
+            app.isQueryRunning = false;
         end
         
         % Graficar los datos del cuadro I
@@ -192,8 +201,8 @@ classdef InterfazEcoshell < matlab.apps.AppBase
             end
 
             % Limitar yData a los últimos 200 datos
-            if numel(yData) > 200
-                yData = yData(end-199:end); % Seleccionar los últimos 200 datos
+            if numel(yData) > 1000
+                yData = yData(end-999:end); % Seleccionar los últimos 200 datos
             end
         
             % Actualizar la gráfica con nuevos puntos de datos o refrescar si no hay nuevos datos
@@ -232,8 +241,8 @@ classdef InterfazEcoshell < matlab.apps.AppBase
             end
 
             % Limitar yData a los últimos 200 datos
-            if numel(yData) > 200
-                yData = yData(end-199:end); % Seleccionar los últimos 200 datos
+            if numel(yData) > 1000
+                yData = yData(end-999:end); % Seleccionar los últimos 200 datos
             end
                 
             % Actualizar la gráfica con nuevos puntos de datos o refrescar si no hay nuevos datos
@@ -322,16 +331,16 @@ classdef InterfazEcoshell < matlab.apps.AppBase
                 app.DBConnection = mysql('MySQLSource','root','');  % Ajusta según tu configuración
 
                 % Inicializar y comenzar el timer para actualizar datos
-                app.Timer = timer('ExecutionMode', 'fixedRate', 'Period', 0.02, ...
+                app.Timer = timer('ExecutionMode', 'fixedRate', 'Period', 0.015, ...
                                   'TimerFcn', @(~, ~)app.updateData);
                 start(app.Timer);
                 
                 % Recolectar los valores ya existentes en la base de datos
-                inicialData = fetch(app.DBConnection, 'SELECT * FROM ecoshell.sensordatabase');
+                inicialData = fetch(app.DBConnection, 'SELECT * FROM ecoshell.sensores');
                 
                 inicialData = inicialData(1:end-1, :);
 
-                writetable(inicialData,app.nombreExcelGen);
+                % writetable(inicialData,app.nombreExcelGen);
                 
                 app.changeCircuit();
                 
@@ -340,7 +349,7 @@ classdef InterfazEcoshell < matlab.apps.AppBase
                 app.VoltHistory = inicialData.volt;
                 app.AmpHistory = inicialData.amp;
                 app.ThrotHistory = inicialData.throt;
-                app.SpeedHistory = round(0.12 * pi * 2.54 * 13 /100 * app.RPMHistory);
+                app.SpeedHistory = inicialData.speed;
                 
                 % Inicializar valores de los campos de datos
                 app.LastRPM = NaN;
@@ -699,15 +708,16 @@ classdef InterfazEcoshell < matlab.apps.AppBase
 
         % Código que se ejecuta antes de la eliminación de la app
         function delete(app)
-            % Detener y eliminar el timer
-            stop(app.Timer);
-            delete(app.Timer);
-
-            % Cerrar la conexión a la base de datos
-            close(app.DBConnection);
-
-            % Eliminar UIFigure cuando la app se elimina
-            delete(app.UIFigure)
+            if isvalid(app.Timer)
+                stop(app.Timer);
+                delete(app.Timer);
+            end
+        
+            if isopen(app.DBConnection)
+                close(app.DBConnection);
+            end
+    
+            delete(app.UIFigure);
         end
     end
 end
